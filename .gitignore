@@ -1,3 +1,6 @@
+data.mat
+MODEL/*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
