@@ -41,9 +41,12 @@ if __name__ == '__main__':
 	path_model = 'MODEL'
 
 	# parameter initialization
-	train_size = 2000
-	test_size = 100
+	train_size = 8000
+	test_size = 800
 	time_size = 30
+
+	# start index
+	start = 500
 
 	if os.path.isdir(path_result) is False:
 		os.mkdir(path_result)
@@ -56,7 +59,7 @@ if __name__ == '__main__':
 	
 	# generate training data & test data
 	print("generate data from data.mat")
-	Data = H[:train_size + test_size, ]
+	Data = H[start : start + train_size + test_size, ]
 
 	mmn = MinMaxNormalization()
 	mmn.fit(Data)
