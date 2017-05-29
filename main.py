@@ -82,12 +82,14 @@ if __name__ == '__main__':
 	print("\nelapsed time (compiling model): %.3f seconds\n" %
         (time.time() - ts))
 
+	'''
 	print('=' * 10)
 
 	print("load weight...")
 
 	model.load_weights(os.path.join('MODEL', 'train_size1000.test_size100.time_size30.resunit12.lr0.0002.final.best.h5'))
 	print('=' * 10)
+	'''
 
 	print("training model...")
 	ts = time.time()
@@ -109,5 +111,9 @@ if __name__ == '__main__':
         (score[0], score[1], score[1] * (mmn._max - mmn._min) / 2.))
 	print("\nelapsed time (eval cont): %.3f seconds\n" % (time.time() - ts))
 
+	import pickle as pickle
+
+	with open(os.path.join('MODEL', "{}.history".format(hyperparams_name)), "wb") as f:
+		pickle.dump(history.history, f)
 
 
