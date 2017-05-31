@@ -8,6 +8,7 @@ import time
 import numpy as np
 import h5py
 import pickle as pickle
+import sys
 
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping, ModelCheckpoint
@@ -16,7 +17,7 @@ from STResNet import stresnet
 import metrics as metrics
 
 def build_model():
-	model = stresnet(c_conf=(time_size, nb_channel, 52, 52), nb_residual_unit = 12)
+	model = stresnet(c_conf=(time_size, nb_channel, 52, 52), nb_residual_unit = nb_residual_unit)
 
 	adam = Adam(lr=lr)
 	model.compile(loss='mse', optimizer=adam, metrics=[metrics.rmse])
@@ -30,10 +31,10 @@ if __name__ == '__main__':
 
 	# set traing parameters
 	nb_epoch = 500  # number of epoch at training stage
-	nb_epoch_cont = 100  # number of epoch at training (cont) stage
+	nb_epoch_cont = 50  # number of epoch at training (cont) stage
 	batch_size = 32  # batch size
 	lr = 0.0002  # learning rate
-	nb_residual_unit = 12  # number of residual units
+	nb_residual_unit = int(sys.argv[1])  # number of residual units
 
 	nb_channel = 1  # there are two types of flows: inflow and outflow
 	map_height, map_width = 52, 52  # grid size
@@ -41,9 +42,9 @@ if __name__ == '__main__':
 	path_model = 'MODEL'
 
 	# parameter initialization
-	train_size = 3000
+	train_size = int(sys.argv[2])
 	test_size = 300
-	time_size = 30
+	time_size = int(sys.argv[3])
 
 	# start index
 	start = 500
