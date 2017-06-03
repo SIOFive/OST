@@ -19,7 +19,7 @@ from STCNN import *
 
 def build_model():
 	if ml == 'resnet':
-		model = stresnet(c_conf=(time_size, nb_channel, 52, 52), nb_residual_unit = nb_residual_unit, filter=ft)
+		model = stresnet(c_conf=(time_size, nb_channel, 52, 52), nb_residual_unit = nb_residual_unit, filter=ft, filter_size=ftsz)
 	if ml == 'cnn':
 		model = seqCNN(n_flow=1, seq_len=time_size, map_height=52, map_width=52, filter=ft)
 
@@ -34,10 +34,10 @@ def build_model():
 if __name__ == '__main__':
 
 	# set traing parameters
-	nb_epoch = 500  # number of epoch at training stage
+	nb_epoch = 100  # number of epoch at training stage
 	nb_epoch_cont = 100  # number of epoch at training (cont) stage
 	batch_size = 32  # batch size
-	lr = 0.0001  # learning rate
+	lr = 0.00003  # learning rate
 	nb_residual_unit = int(sys.argv[4])  # number of residual units
 
 	nb_channel = 1  # there are two types of flows: inflow and outflow
@@ -79,8 +79,8 @@ if __name__ == '__main__':
 	# build model
 	ml = sys.argv[5]
 	ft = int(sys.argv[6])
+	ftsz = int(sys.argv[7])
 	model = build_model()
-	
 	
 	ts = time.time()
 	if ml == 'resnet':
