@@ -15,9 +15,13 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 
 from STResNet import stresnet
 import metrics as metrics
+from STCNN import *
 
 def build_model():
-	model = stresnet(c_conf=(time_size, nb_channel, 52, 52), nb_residual_unit = nb_residual_unit)
+	if ml == 'resnet':
+		model = stresnet(c_conf=(time_size, nb_channel, 52, 52), nb_residual_unit = nb_residual_unit, filter=ft)
+	if ml == 'cnn':
+		model = seqCNN(n_flow=1, seq_len=time_size, map_height=52, map_width=52, filter=ft)
 
 	adam = Adam(lr=lr)
 	model.compile(loss='mse', optimizer=adam, metrics=[metrics.rmse])
@@ -31,10 +35,10 @@ if __name__ == '__main__':
 
 	# set traing parameters
 	nb_epoch = 500  # number of epoch at training stage
-	nb_epoch_cont = 50  # number of epoch at training (cont) stage
+	nb_epoch_cont = 100  # number of epoch at training (cont) stage
 	batch_size = 32  # batch size
-	lr = 0.0002  # learning rate
-	nb_residual_unit = int(sys.argv[1])  # number of residual units
+	lr = 0.0001  # learning rate
+	nb_residual_unit = int(sys.argv[4])  # number of residual units
 
 	nb_channel = 1  # there are two types of flows: inflow and outflow
 	map_height, map_width = 52, 52  # grid size
@@ -42,8 +46,8 @@ if __name__ == '__main__':
 	path_model = 'MODEL'
 
 	# parameter initialization
-	train_size = int(sys.argv[2])
-	test_size = 300
+	train_size = int(sys.argv[1])
+	test_size = int(sys.argv[2])
 	time_size = int(sys.argv[3])
 
 	# start index
@@ -60,7 +64,8 @@ if __name__ == '__main__':
 	
 	# generate training data & test data
 	print("generate data from data.mat")
-	Data = H[start : start + train_size + test_size, ]
+	Data = H[- train_size - test_size:, ]
+	#Data = H[start : start + train_size + test_size, ]
 
 	mmn = MinMaxNormalization()
 	mmn.fit(Data)
@@ -72,13 +77,22 @@ if __name__ == '__main__':
 	print(y_test.shape)
 
 	# build model
+	ml = sys.argv[5]
+	ft = int(sys.argv[6])
 	model = build_model()
-
+	
+	
 	ts = time.time()
-	hyperparams_name = 'train_size{}.test_size{}.time_size{}.resunit{}.lr{}'.format(
-        train_size, test_size, time_size, nb_residual_unit, lr)
+	if ml == 'resnet':
+		hyperparams_name = 'Re-train_size{}.test_size{}.time_size{}.resunit{}.lr{}.filter{}'.format(
+        	train_size, test_size, time_size, nb_residual_unit, lr, ft)
+	if ml == 'cnn':
+		hyperparams_name = 'seqCNN.train_size{}.test_size{}.time_size{}.lr{}'.format(
+    	    train_size, test_size, time_size, lr)
+	
 	fname_param = os.path.join('MODEL', '{}.best.h5'.format(hyperparams_name))
-	early_stopping = EarlyStopping(monitor='val_loss', patience=5, mode='min')
+	
+	early_stopping = EarlyStopping(monitor='val_loss', patience=10, mode='min')
 	model_checkpoint = ModelCheckpoint(
     	fname_param, monitor='val_loss', verbose=0, save_best_only=True, mode='min')
 
@@ -99,6 +113,7 @@ if __name__ == '__main__':
 	json_string = model.to_json()
 	open('model_json', 'w').write(json_string)
 	#model = model_from_json(json_string)
+	
 
 	print('=' * 10)
 	print('evaluating using the model that has the best loss on the valid set')

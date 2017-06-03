@@ -14,7 +14,7 @@ def _shortcut(input, residual):
     return merge([input, residual], mode='sum')
 
 
-def _bn_relu_conv(nb_filter, nb_row, nb_col, subsample=(1, 1), bn=False):
+def _bn_relu_conv(nb_filter, nb_row, nb_col, subsample=(1, 1), bn=True):
     def f(input):
         if bn:
             input = BatchNormalization(mode=0, axis=1)(input)
@@ -41,21 +41,22 @@ def ResUnits(residual_unit, nb_filter, repetations=1):
     return f
 
 
-def stresnet(c_conf=(10, 1, 52, 52), nb_residual_unit = 3):
+def stresnet(c_conf=(10, 1, 52, 52), nb_residual_unit = 3, filter=64):
     # conf = (len_seq, nb_channel, map_height, map_width)
     
     # main input
     main_inputs = []
     outputs = []
+    #filter = 64
     if c_conf is not None:
         len_seq, nb_channel, map_height, map_width = c_conf
         input = Input(shape=(nb_channel * len_seq, map_height, map_width))
         main_inputs.append(input)
         # Conv1
         conv1 = Convolution2D(
-            nb_filter=64, nb_row=3, nb_col=3, border_mode="same")(input)
+            nb_filter=filter, nb_row=3, nb_col=3, border_mode="same")(input)
         # [nb_residual_unit] Residual Units
-        residual_output = ResUnits(_residual_unit, nb_filter=64,
+        residual_output = ResUnits(_residual_unit, nb_filter=filter,
                                    repetations=nb_residual_unit)(conv1)
         # Conv2
         activation = Activation('relu')(residual_output)
