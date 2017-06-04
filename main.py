@@ -64,11 +64,11 @@ if __name__ == '__main__':
 	
 	# generate training data & test data
 	print("generate data from data.mat")
-	Data = H[- train_size - test_size:, ]
+	Data = H[:train_size + test_size, ]
 	#Data = H[start : start + train_size + test_size, ]
 
 	mmn = MinMaxNormalization()
-	mmn.fit(Data)
+	Data = mmn.fit_transform(Data)
 	X_train, y_train = init_data(Data, train_size, time_size)
 	X_test, y_test = init_data(Data[train_size:, ], test_size, time_size)
 	print(X_train.shape)
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 	
 	ts = time.time()
 	if ml == 'resnet':
-		hyperparams_name = 'Re-train_size{}.test_size{}.time_size{}.resunit{}.lr{}.filter{}'.format(
+		hyperparams_name = 'Be-train_size{}.test_size{}.time_size{}.resunit{}.lr{}.filter{}'.format(
         	train_size, test_size, time_size, nb_residual_unit, lr, ft)
 	if ml == 'cnn':
 		hyperparams_name = 'seqCNN.train_size{}.test_size{}.time_size{}.lr{}'.format(
